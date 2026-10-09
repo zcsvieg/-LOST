@@ -6,7 +6,7 @@
     <title>LOST MC - 400 Mods Marketplace</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="mods.js?v=1000"></script>
+    <script src="mods.js?v=99999"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
         body { background-color: #0d0f14; color: #ffffff; min-height: 100vh; padding-bottom: 30px; }
@@ -16,8 +16,8 @@
             background-color: #141721; border-bottom: 1px solid rgba(255, 255, 255, 0.08); position: sticky; top: 0; z-index: 100;
         }
         .logo-container { display: flex; align-items: center; gap: 10px; }
-        .logo-img { height: 40px; width: auto; border-radius: 6px; object-fit: contain; }
-        .logo { font-size: 20px; font-weight: 900; color: #10b981; }
+        .logo-img { height: 38px; width: auto; border-radius: 6px; object-fit: contain; }
+        .logo { font-size: 18px; font-weight: 900; color: #10b981; }
 
         .header-actions { display: flex; gap: 8px; align-items: center; }
         .cart-trigger {
@@ -27,7 +27,7 @@
         .cart-count { background: #000; color: #fff; padding: 2px 6px; border-radius: 8px; font-size: 11px; }
 
         .hero-section { text-align: center; padding: 15px 10px; }
-        .hero-section h1 { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
+        .hero-section h1 { font-size: 20px; font-weight: 900; margin-bottom: 4px; }
         .hero-section p { color: #94a3b8; font-size: 12px; }
 
         .marketplace-container { width: 100%; padding: 10px; display: flex; flex-direction: column; gap: 12px; }
@@ -41,69 +41,72 @@
         .search-box { width: 100%; padding: 12px 14px; background-color: #141721; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 8px; color: #fff; font-size: 14px; outline: none; }
         .version-select { width: 100%; padding: 12px 14px; background-color: #141721; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 8px; color: #10b981; font-weight: 700; outline: none; }
 
-        .mods-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
-        .mod-card { background-color: #141721; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; }
+        .mods-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+        .mod-card { background-color: #141721; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; }
         
-        .mod-header { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; width: 100%; }
+        .mod-header { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; width: 100%; }
         .mod-icon-box { 
-            width: 32px; height: 32px; border-radius: 8px; background-color: rgba(16, 185, 129, 0.1); 
+            width: 30px; height: 30px; border-radius: 8px; background-color: rgba(16, 185, 129, 0.1); 
             display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid rgba(16, 185, 129, 0.3);
         }
-        .mod-icon-box svg { width: 18px; height: 18px; fill: #10b981; }
+        .mod-icon-box svg { width: 16px; height: 16px; fill: #10b981; }
         
         .mod-info { overflow: hidden; width: 100%; }
-        .mod-info h3 { font-size: 12px; color: #fff; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .mod-loader { font-size: 9px; padding: 1px 5px; border-radius: 4px; display: inline-block; margin-top: 2px; font-weight: 700; }
+        .mod-info h3 { font-size: 11px; color: #fff; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .mod-loader { font-size: 8px; padding: 1px 4px; border-radius: 4px; display: inline-block; margin-top: 2px; font-weight: 700; }
         .loader-fabric { background: rgba(16, 185, 129, 0.15); color: #10b981; }
         .loader-forge { background: rgba(234, 179, 8, 0.15); color: #eab308; }
         .loader-neoforge { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
 
-        .mod-desc { font-size: 10px; color: #94a3b8; line-height: 1.3; margin-bottom: 8px; height: 28px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .mod-desc { font-size: 10px; color: #94a3b8; line-height: 1.3; margin-bottom: 8px; height: 26px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 
-        .add-cart-btn { background-color: #10b981; color: #000; font-weight: 700; padding: 7px; border-radius: 6px; border: none; cursor: pointer; width: 100%; font-size: 11px; transition: 0.2s; }
+        .add-cart-btn { background-color: #10b981; color: #000; font-weight: 700; padding: 6px; border-radius: 6px; border: none; cursor: pointer; width: 100%; font-size: 11px; transition: 0.2s; }
         .add-cart-btn.added { background-color: #ef4444; color: #fff; }
 
+        /* نافذة السلة المحسنة للموبايل واللمس */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
-        .modal-content { background: #161922; border: 1px solid rgba(255,255,255,0.1); border-top-left-radius: 20px; border-top-right-radius: 20px; width: 100%; max-width: 500px; max-height: 90vh; padding: 18px 14px; position: relative; display: flex; flex-direction: column; }
-        .close-modal { position: absolute; top: 12px; left: 12px; font-size: 18px; cursor: pointer; color: #94a3b8; background: #222734; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: #161922; border: 1px solid rgba(255,255,255,0.1); border-top-left-radius: 20px; border-top-right-radius: 20px; width: 100%; max-width: 500px; max-height: 85vh; padding: 16px 12px; position: relative; display: flex; flex-direction: column; }
+        .close-modal { position: absolute; top: 12px; left: 12px; font-size: 18px; cursor: pointer; color: #94a3b8; background: #222734; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; }
 
         .warnings-wrapper { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
-        .alert-box { padding: 10px 12px; border-radius: 8px; font-size: 11px; line-height: 1.4; border: 1px solid #ef4444; background: rgba(239, 68, 68, 0.2); color: #fca5a5; font-weight: bold; }
+        .alert-box { padding: 10px; border-radius: 8px; font-size: 11px; line-height: 1.4; border: 1px solid #ef4444; background: rgba(239, 68, 68, 0.2); color: #fca5a5; font-weight: bold; }
         
-        /* تنسيق أزرار المودات المساعدة بالسلة */
+        /* أزرار اقتراح المود المساعد المخصصة للموبايل */
         .dep-suggestion {
-            background: rgba(245, 158, 11, 0.15);
+            background: rgba(245, 158, 11, 0.2);
             border: 1px solid #f59e0b;
             color: #fde68a;
-            padding: 8px 10px;
+            padding: 10px;
             border-radius: 8px;
             font-size: 11px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 6px;
         }
         .add-dep-btn {
             background: #10b981;
             color: #000;
             border: none;
-            padding: 4px 10px;
+            padding: 6px 12px;
             border-radius: 6px;
             font-weight: 900;
             cursor: pointer;
             font-size: 11px;
+            flex-shrink: 0;
         }
 
-        .cart-list { flex: 1; overflow-y: auto; margin: 10px 0; }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #202533; border-radius: 6px; margin-bottom: 5px; }
-        .remove-btn { background: #ef4444; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 10px; }
+        .cart-list { flex: 1; overflow-y: auto; margin: 10px 0; -webkit-overflow-scrolling: touch; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 8px; background: #202533; border-radius: 8px; margin-bottom: 6px; }
+        .remove-btn { background: #ef4444; color: #fff; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 10px; font-weight: 700; }
 
-        .download-zip-btn { background: #10b981; color: #000; font-weight: 900; width: 100%; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; }
+        .download-zip-btn { background: #10b981; color: #000; font-weight: 900; width: 100%; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; margin-top: 5px; }
 
         @media (min-width: 768px) {
             .marketplace-container { flex-direction: row; }
             .sidebar { width: 230px; height: fit-content; }
             .controls-row { flex-direction: row; }
-            .mods-grid { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+            .mods-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
             .modal-overlay { align-items: center; }
             .modal-content { border-radius: 16px; }
         }
@@ -151,10 +154,10 @@
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal-content">
             <span class="close-modal" id="closeModal">&times;</span>
-            <h3 style="margin-bottom: 10px; color: #10b981; font-size: 15px;">تنزيل التجميعة المختارة (.ZIP)</h3>
+            <h3 style="margin-bottom: 10px; color: #10b981; font-size: 14px;">تنزيل التجميعة المختارة (.ZIP)</h3>
             <input type="text" id="packName" style="width:100%; padding:8px; background:#0d0f14; border:1px solid rgba(255,255,255,0.2); border-radius:6px; color:#fff; margin-bottom:10px; font-size:12px;" value="My_LOST_Modpack">
             
-            <!-- تنبيهات التعارض والأزرار المباشرة للمودات المساعدة -->
+            <!-- أزرار وتنبيهات المودات المساعدة المباشرة بالموبايل -->
             <div class="warnings-wrapper" id="warningsContainer"></div>
 
             <div class="cart-list" id="cartList"></div>
@@ -266,7 +269,6 @@
             renderCartList();
         }
 
-        // دالة إضافة المود المساعد مباشرة عند ضغط الزر بالسلة
         function addDepDirectly(depId) {
             const depMod = modsData.find(m => m.id === depId);
             if (depMod && !selectedMods.some(m => m.id === depMod.id)) {
@@ -288,7 +290,7 @@
                 return;
             }
 
-            // 1. فحص تعارض البيئات المباشر (Fabric vs Forge vs NeoForge)
+            // 1. فحص التعارض المباشر بالبيئات (Fabric vs Forge vs NeoForge)
             const loadersUsed = Array.from(new Set(selectedMods.map(m => m.loader)));
             if (loadersUsed.length > 1) {
                 const alert = document.createElement('div');
@@ -297,13 +299,12 @@
                 warningsContainer.appendChild(alert);
             }
 
-            // 2. فحص واقتراح المودات المساعدة بزر مباشر (زر إضافة +)
+            // 2. فحص واقتراح المودات المساعدة بزر مباشر بالموبايل
             const selectedNames = selectedMods.map(m => m.name.toLowerCase());
             
             selectedMods.forEach(mod => {
                 const name = mod.name.toLowerCase();
                 
-                // قائمة الشروط الذكية للمودات المساعدة
                 let neededDepKeyword = '';
                 if (name.includes('sodium') && !selectedNames.some(n => n.includes('fabric api'))) neededDepKeyword = 'fabric api';
                 else if (name.includes('iris') && !selectedNames.some(n => n.includes('sodium'))) neededDepKeyword = 'sodium';
@@ -316,8 +317,8 @@
                         const sug = document.createElement('div');
                         sug.className = 'dep-suggestion';
                         sug.innerHTML = `
-                            <span>⚙ تحتاج المود المساعد: <b>${depMod.name}</b></span>
-                            <button class="add-dep-btn" onclick="addDepDirectly(${depMod.id})">✓ إضافة +</button>
+                            <span>⚙ يحتاج مساعد: <b>${depMod.name}</b></span>
+                            <button class="add-dep-btn" onclick="addDepDirectly(${depMod.id})">+ إضافة</button>
                         `;
                         warningsContainer.appendChild(sug);
                     }
