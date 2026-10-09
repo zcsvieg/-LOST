@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LOST MC - 400 Mods Marketplace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- استدعاء ملف المودات مباشرة وحل مشكلة الموبايل -->
+    <script src="mods.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background-color: #0d0f14; color: #ffffff; min-height: 100vh; padding-bottom: 30px; }
+
+        header {
+            width: 100%; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;
+            background-color: #141721; border-bottom: 1px solid rgba(255, 255, 255, 0.08); position: sticky; top: 0; z-index: 100;
+        }
+        .logo-container { display: flex; align-items: center; gap: 10px; }
+        .logo-img { height: 40px; width: auto; border-radius: 6px; object-fit: contain; }
+        .logo { font-size: 20px; font-weight: 900; color: #10b981; }
+
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+        .cart-trigger {
+            background: #10b981; color: #000; font-weight: 900; padding: 8px 12px; border-radius: 10px;
+            cursor: pointer; display: flex; align-items: center; gap: 6px; border: none; font-size: 12px;
+        }
+        .cart-count { background: #000; color: #fff; padding: 2px 6px; border-radius: 8px; font-size: 11px; }
+
+        .hero-section { text-align: center; padding: 15px 10px; }
+        .hero-section h1 { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
+        .hero-section p { color: #94a3b8; font-size: 12px; }
+
+        .marketplace-container { width: 100%; padding: 10px; display: flex; flex-direction: column; gap: 12px; }
+
+        .sidebar { background-color: #141721; padding: 12px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08); }
+        .filter-group { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+        .filter-title { font-size: 13px; font-weight: 700; color: #10b981; }
+        .filter-option { display: flex; align-items: center; gap: 5px; font-size: 12px; cursor: pointer; color: #cbd5e1; }
+
+        .controls-row { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+        .search-box { width: 100%; padding: 12px 14px; background-color: #141721; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 8px; color: #fff; font-size: 14px; outline: none; }
+        .version-select { width: 100%; padding: 12px 14px; background-color: #141721; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 8px; color: #10b981; font-weight: 700; outline: none; }
+
+        .mods-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+        .mod-card { background-color: #141721; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; }
+        
+        .mod-header { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; width: 100%; }
+        .mod-icon-box { 
+            width: 32px; height: 32px; border-radius: 8px; background-color: rgba(16, 185, 129, 0.1); 
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .mod-icon-box svg { width: 18px; height: 18px; fill: #10b981; }
+        
+        .mod-info { overflow: hidden; width: 100%; }
+        .mod-info h3 { font-size: 12px; color: #fff; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .mod-loader { font-size: 9px; padding: 1px 5px; border-radius: 4px; display: inline-block; margin-top: 2px; font-weight: 700; }
+        .loader-fabric { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+        .loader-forge { background: rgba(234, 179, 8, 0.15); color: #eab308; }
+        .loader-neoforge { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+
+        .mod-desc { font-size: 10px; color: #94a3b8; line-height: 1.3; margin-bottom: 8px; height: 28px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+
+        .add-cart-btn { background-color: #10b981; color: #000; font-weight: 700; padding: 7px; border-radius: 6px; border: none; cursor: pointer; width: 100%; font-size: 11px; transition: 0.2s; }
+        .add-cart-btn.added { background-color: #ef4444; color: #fff; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
+        .modal-content { background: #161922; border: 1px solid rgba(255,255,255,0.1); border-top-left-radius: 20px; border-top-right-radius: 20px; width: 100%; max-width: 500px; max-height: 90vh; padding: 18px 14px; position: relative; display: flex; flex-direction: column; }
+        .close-modal { position: absolute; top: 12px; left: 12px; font-size: 18px; cursor: pointer; color: #94a3b8; background: #222734; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+        .cart-list { flex: 1; overflow-y: auto; margin: 10px 0; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #202533; border-radius: 6px; margin-bottom: 5px; }
+        .remove-btn { background: #ef4444; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 10px; }
+
+        .download-zip-btn { background: #10b981; color: #000; font-weight: 900; width: 100%; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; }
+
+        @media (min-width: 768px) {
+            .marketplace-container { flex-direction: row; }
+            .sidebar { width: 230px; height: fit-content; }
+            .controls-row { flex-direction: row; }
+            .mods-grid { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+            .modal-overlay { align-items: center; }
+            .modal-content { border-radius: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <img src="Gemini_Generated_Image_571ls5571ls5571l.jpg" alt="LOST MC Logo" class="logo-img">
+            <div class="logo">LOST MC</div>
+        </div>
+        <div class="header-actions">
+            <button class="cart-trigger" id="openCartBtn">
+                🛒 السلة <span class="cart-count" id="cartCount">0</span>
+            </button>
+        </div>
+    </header>
+
+    <section class="hero-section">
+        <h1>صانع التجميعات (400 مود)</h1>
+        <p id="totalCountText">جاري تحميل المودات...</p>
+    </section>
+
+    <div class="marketplace-container">
+        <aside class="sidebar">
+            <div class="filter-group">
+                <span class="filter-title">البيئة:</span>
+                <label class="filter-option"><input type="checkbox" class="loader-filter" value="Fabric" checked onchange="renderMods()"> Fabric</label>
+                <label class="filter-option"><input type="checkbox" class="loader-filter" value="Forge" checked onchange="renderMods()"> Forge</label>
+                <label class="filter-option"><input type="checkbox" class="loader-filter" value="NeoForge" checked onchange="renderMods()"> NeoForge</label>
+            </div>
+        </aside>
+
+        <main style="flex: 1;">
+            <div class="controls-row">
+                <input type="text" id="searchInput" class="search-box" placeholder="ابحث بين المودات..." oninput="renderMods()">
+                <select id="mcVersion" class="version-select" onchange="renderMods()">
+                    <!-- يتم تحميل كل الإصدارات من 1.7.10 إلى 1.21.11 هنا تلقائياً -->
+                </select>
+            </div>
+            <div class="mods-grid" id="modsGrid"></div>
+        </main>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModal">&times;</span>
+            <h3 style="margin-bottom: 10px; color: #10b981; font-size: 15px;">تنزيل التجميعة المختارة (.ZIP)</h3>
+            <input type="text" id="packName" style="width:100%; padding:8px; background:#0d0f14; border:1px solid rgba(255,255,255,0.2); border-radius:6px; color:#fff; margin-bottom:10px; font-size:12px;" value="My_LOST_Modpack">
+            <div class="cart-list" id="cartList"></div>
+            <button class="download-zip-btn" id="downloadZipBtn" onclick="generateZip()">📦 تنزيل الـ ZIP</button>
+        </div>
+    </div>
+
+    <script>
+        const cubeSvg = `<svg viewBox="0 0 24 24"><path d="M21,16.5C21,16.88 20.79,17.21 20.47,17.38L12.57,21.82C12.41,21.94 12.21,22 12,22C11.79,22 11.59,21.94 11.43,21.82L3.53,17.38C3.21,17.21 3,16.88 3,16.5V7.5C3,7.12 3.21,6.79 3.53,6.62L11.43,2.18C11.59,2.06 11.79,2 12,2C12.21,2 12.41,2.06 12.57,2.18L20.47,6.62C20.79,6.79 21,7.12 21,7.5V16.5M12,4.15L6.04,7.5L12,10.85L17.96,7.5L12,4.15M5,9.58V15.34L11,18.7V12.94L5,9.58M19,9.58L13,12.94V18.7L19,15.34V9.58Z"/></svg>`;
+
+        // جميع الإصدارات المعتمدة من 1.7.10 إلى 1.21.11
+        const allMcVersions = [
+            "1.21.11", "1.21.10", "1.21.9", "1.21.8", "1.21.7", "1.21.6", "1.21.5", "1.21.4", "1.21.3", "1.21.2", "1.21.1", "1.21",
+            "1.20.6", "1.20.5", "1.20.4", "1.20.3", "1.20.2", "1.20.1", "1.20",
+            "1.19.4", "1.19.3", "1.19.2", "1.19.1", "1.19",
+            "1.18.2", "1.18.1", "1.18",
+            "1.17.1", "1.17",
+            "1.16.5", "1.16.4", "1.16.3", "1.16.2", "1.16.1", "1.16",
+            "1.15.2", "1.15.1", "1.15",
+            "1.14.4", "1.14.3", "1.14.2", "1.14.1", "1.14",
+            "1.13.2", "1.13.1", "1.13",
+            "1.12.2", "1.12.1", "1.12",
+            "1.11.2", "1.11",
+            "1.10.2", "1.10",
+            "1.9.4", "1.9",
+            "1.8.9", "1.8",
+            "1.7.10"
+        ];
+
+        let modsData = [];
+        let selectedMods = [];
+
+        // تعبئة القائمة المنسدلة بالإصدارات
+        function initVersionDropdown() {
+            const select = document.getElementById('mcVersion');
+            select.innerHTML = '';
+            allMcVersions.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v;
+                opt.innerText = v;
+                if(v === "1.20.1") opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+
+        // جلب البيانات من mods.js بدون مشاكل الحظر بالموبايل
+        function loadModsData() {
+            if (typeof mods_data !== 'undefined' && Array.isArray(mods_data)) {
+                modsData = mods_data;
+                renderMods();
+            } else {
+                document.getElementById('totalCountText').innerText = '⚠ خطأ: لم يتم العثور على ملف mods.js. تأكد من تشغيل generate_mods.py أولاً.';
+            }
+        }
+
+        function renderMods() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const selectedVersion = document.getElementById('mcVersion').value;
+            const selectedLoaders = Array.from(document.querySelectorAll('.loader-filter:checked')).map(cb => cb.value);
+            const grid = document.getElementById('modsGrid');
+            grid.innerHTML = '';
+
+            const filtered = modsData.filter(mod => {
+                const matchesName = mod.name.toLowerCase().includes(query);
+                const matchesLoader = selectedLoaders.includes(mod.loader);
+                const matchesVersion = mod.supported_versions.includes(selectedVersion);
+                return matchesName && matchesLoader && matchesVersion;
+            });
+
+            document.getElementById('totalCountText').innerText = `المجموع الكلي: ${modsData.length} مود | المعروض لإصدار ${selectedVersion}: ${filtered.length}`;
+
+            filtered.forEach(mod => {
+                const isSelected = selectedMods.some(m => m.id === mod.id);
+                const card = document.createElement('div');
+                card.className = 'mod-card';
+                
+                let loaderClass = 'loader-fabric';
+                if(mod.loader === 'Forge') loaderClass = 'loader-forge';
+                if(mod.loader === 'NeoForge') loaderClass = 'loader-neoforge';
+
+                card.innerHTML = `
+                    <div>
+                        <div class="mod-header">
+                            <div class="mod-icon-box">${cubeSvg}</div>
+                            <div class="mod-info">
+                                <h3>${mod.name}</h3>
+                                <span class="mod-loader ${loaderClass}">${mod.loader}</span>
+                            </div>
+                        </div>
+                        <p class="mod-desc">${mod.description || 'مود مميز ومحسن للأداء واللعب.'}</p>
+                    </div>
+                    <button class="add-cart-btn ${isSelected ? 'added' : ''}" onclick="toggleCart(${mod.id})">
+                        ${isSelected ? 'إزالة' : 'أضف +'}
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function toggleCart(modId) {
+            const mod = modsData.find(m => m.id === modId);
+            const index = selectedMods.findIndex(m => m.id === modId);
+
+            if (index > -1) {
+                selectedMods.splice(index, 1);
+            } else {
+                selectedMods.push(mod);
+            }
+
+            document.getElementById('cartCount').innerText = selectedMods.length;
+            renderMods();
+            renderCartList();
+        }
+
+        function renderCartList() {
+            const cartList = document.getElementById('cartList');
+            cartList.innerHTML = '';
+
+            if (selectedMods.length === 0) {
+                cartList.innerHTML = '<p style="color:#94a3b8; text-align:center; font-size:12px; padding:10px;">السلة فارغة.</p>';
+                return;
+            }
+
+            selectedMods.forEach(mod => {
+                const item = document.createElement('div');
+                item.className = 'cart-item';
+                item.innerHTML = `
+                    <div>
+                        <strong style="font-size:12px;">${mod.name}</strong>
+                        <span style="font-size:10px; color:#94a3b8;">(${mod.loader})</span>
+                    </div>
+                    <button class="remove-btn" onclick="toggleCart(${mod.id})">حذف</button>
+                `;
+                cartList.appendChild(item);
+            });
+        }
+
+        async function generateZip() {
+            if (selectedMods.length === 0) {
+                alert('السلة فارغة!');
+                return;
+            }
+
+            const btn = document.getElementById('downloadZipBtn');
+            const packName = document.getElementById('packName').value || 'Modpack';
+            const mcVer = document.getElementById('mcVersion').value;
+            btn.innerText = 'جاري ضغط الملفات...';
+            btn.disabled = true;
+
+            const zip = new JSZip();
+            const modsFolder = zip.folder("mods");
+
+            for (const mod of selectedMods) {
+                try {
+                    const res = await fetch(`https://api.modrinth.com/v2/project/${mod.slug}/version?game_versions=["${mcVer}"]&loaders=["${mod.loader.toLowerCase()}"]`);
+                    const versions = await res.json();
+                    
+                    if (versions && versions.length > 0) {
+                        const fileObj = versions[0].files.find(f => f.primary) || versions[0].files[0];
+                        const fileData = await fetch(fileObj.url).then(r => r.blob());
+                        modsFolder.file(fileObj.filename, fileData);
+                    } else {
+                        modsFolder.file(`${mod.slug}-${mcVer}.jar`, `// Placeholder file for ${mod.name} [${mod.loader}] (${mcVer})`);
+                    }
+                } catch (e) {
+                    modsFolder.file(`${mod.slug}-${mcVer}.jar`, `// Placeholder file for ${mod.name} [${mod.loader}] (${mcVer})`);
+                }
+            }
+
+            zip.generateAsync({ type: "blob" }).then(content => {
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(content);
+                a.download = `${packName}_${mcVer}.zip`;
+                a.click();
+
+                btn.innerText = '📦 تنزيل الـ ZIP';
+                btn.disabled = false;
+            });
+        }
+
+        const modal = document.getElementById('modalOverlay');
+        document.getElementById('openCartBtn').onclick = () => { renderCartList(); modal.style.display = 'flex'; };
+        document.getElementById('closeModal').onclick = () => modal.style.display = 'none';
+
+        // التشغيل المباشر
+        initVersionDropdown();
+        loadModsData();
+    </script>
+</body>
+</html>
