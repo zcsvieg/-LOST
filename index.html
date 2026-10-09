@@ -6,7 +6,7 @@
     <title>LOST MC - 400 Mods Marketplace</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="mods.js?v=999"></script>
+    <script src="mods.js?v=1000"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
         body { background-color: #0d0f14; color: #ffffff; min-height: 100vh; padding-bottom: 30px; }
@@ -69,6 +69,29 @@
 
         .warnings-wrapper { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
         .alert-box { padding: 10px 12px; border-radius: 8px; font-size: 11px; line-height: 1.4; border: 1px solid #ef4444; background: rgba(239, 68, 68, 0.2); color: #fca5a5; font-weight: bold; }
+        
+        /* تنسيق أزرار المودات المساعدة بالسلة */
+        .dep-suggestion {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid #f59e0b;
+            color: #fde68a;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .add-dep-btn {
+            background: #10b981;
+            color: #000;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 900;
+            cursor: pointer;
+            font-size: 11px;
+        }
 
         .cart-list { flex: 1; overflow-y: auto; margin: 10px 0; }
         .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #202533; border-radius: 6px; margin-bottom: 5px; }
@@ -131,6 +154,7 @@
             <h3 style="margin-bottom: 10px; color: #10b981; font-size: 15px;">تنزيل التجميعة المختارة (.ZIP)</h3>
             <input type="text" id="packName" style="width:100%; padding:8px; background:#0d0f14; border:1px solid rgba(255,255,255,0.2); border-radius:6px; color:#fff; margin-bottom:10px; font-size:12px;" value="My_LOST_Modpack">
             
+            <!-- تنبيهات التعارض والأزرار المباشرة للمودات المساعدة -->
             <div class="warnings-wrapper" id="warningsContainer"></div>
 
             <div class="cart-list" id="cartList"></div>
@@ -235,22 +259,22 @@
                 selectedMods.splice(index, 1);
             } else {
                 selectedMods.push(mod);
-
-                // ميزة الإضافة التلقائية المباشرة للمودات المساعدة
-                const name = mod.name.toLowerCase();
-                modsData.forEach(m => {
-                    if (m.loader === mod.loader && !selectedMods.some(s => s.id === m.id)) {
-                        const mName = m.name.toLowerCase();
-                        if (name.includes('sodium') && mName.includes('fabric api')) selectedMods.push(m);
-                        if (name.includes('iris') && (mName.includes('sodium') || mName.includes('fabric api'))) selectedMods.push(m);
-                        if (name.includes('entity texture') && (mName.includes('architectury') || mName.includes('fabric api'))) selectedMods.push(m);
-                    }
-                });
             }
 
             document.getElementById('cartCount').innerText = selectedMods.length;
             renderMods();
             renderCartList();
+        }
+
+        // دالة إضافة المود المساعد مباشرة عند ضغط الزر بالسلة
+        function addDepDirectly(depId) {
+            const depMod = modsData.find(m => m.id === depId);
+            if (depMod && !selectedMods.some(m => m.id === depMod.id)) {
+                selectedMods.push(depMod);
+                document.getElementById('cartCount').innerText = selectedMods.length;
+                renderMods();
+                renderCartList();
+            }
         }
 
         function renderCartList() {
@@ -264,7 +288,7 @@
                 return;
             }
 
-            // فحص التعارض المباشر بالبيئات (Fabric vs Forge vs NeoForge)
+            // 1. فحص تعارض البيئات المباشر (Fabric vs Forge vs NeoForge)
             const loadersUsed = Array.from(new Set(selectedMods.map(m => m.loader)));
             if (loadersUsed.length > 1) {
                 const alert = document.createElement('div');
@@ -273,6 +297,34 @@
                 warningsContainer.appendChild(alert);
             }
 
+            // 2. فحص واقتراح المودات المساعدة بزر مباشر (زر إضافة +)
+            const selectedNames = selectedMods.map(m => m.name.toLowerCase());
+            
+            selectedMods.forEach(mod => {
+                const name = mod.name.toLowerCase();
+                
+                // قائمة الشروط الذكية للمودات المساعدة
+                let neededDepKeyword = '';
+                if (name.includes('sodium') && !selectedNames.some(n => n.includes('fabric api'))) neededDepKeyword = 'fabric api';
+                else if (name.includes('iris') && !selectedNames.some(n => n.includes('sodium'))) neededDepKeyword = 'sodium';
+                else if (name.includes('entity texture') && !selectedNames.some(n => n.includes('architectury'))) neededDepKeyword = 'architectury';
+                else if (name.includes('entity culling') && !selectedNames.some(n => n.includes('cloth config'))) neededDepKeyword = 'cloth config';
+
+                if (neededDepKeyword) {
+                    const depMod = modsData.find(m => m.loader === mod.loader && m.name.toLowerCase().includes(neededDepKeyword));
+                    if (depMod && !selectedMods.some(m => m.id === depMod.id)) {
+                        const sug = document.createElement('div');
+                        sug.className = 'dep-suggestion';
+                        sug.innerHTML = `
+                            <span>⚙ تحتاج المود المساعد: <b>${depMod.name}</b></span>
+                            <button class="add-dep-btn" onclick="addDepDirectly(${depMod.id})">✓ إضافة +</button>
+                        `;
+                        warningsContainer.appendChild(sug);
+                    }
+                }
+            });
+
+            // عرض المودات بالسلة
             selectedMods.forEach(mod => {
                 const item = document.createElement('div');
                 item.className = 'cart-item';
