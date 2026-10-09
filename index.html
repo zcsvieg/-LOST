@@ -6,7 +6,6 @@
     <title>LOST MC - 400 Mods Marketplace</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <!-- استدعاء ملف المودات مباشرة وحل مشكلة الموبايل -->
     <script src="mods.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
@@ -68,6 +67,10 @@
         .modal-content { background: #161922; border: 1px solid rgba(255,255,255,0.1); border-top-left-radius: 20px; border-top-right-radius: 20px; width: 100%; max-width: 500px; max-height: 90vh; padding: 18px 14px; position: relative; display: flex; flex-direction: column; }
         .close-modal { position: absolute; top: 12px; left: 12px; font-size: 18px; cursor: pointer; color: #94a3b8; background: #222734; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
+        .warnings-wrapper { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+        .alert-box { padding: 10px 12px; border-radius: 8px; font-size: 11px; line-height: 1.4; }
+        .alert-danger { background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #fca5a5; }
+
         .cart-list { flex: 1; overflow-y: auto; margin: 10px 0; }
         .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #202533; border-radius: 6px; margin-bottom: 5px; }
         .remove-btn { background: #ef4444; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 10px; }
@@ -117,7 +120,6 @@
             <div class="controls-row">
                 <input type="text" id="searchInput" class="search-box" placeholder="ابحث بين المودات..." oninput="renderMods()">
                 <select id="mcVersion" class="version-select" onchange="renderMods()">
-                    <!-- يتم تحميل كل الإصدارات من 1.7.10 إلى 1.21.11 هنا تلقائياً -->
                 </select>
             </div>
             <div class="mods-grid" id="modsGrid"></div>
@@ -129,15 +131,17 @@
             <span class="close-modal" id="closeModal">&times;</span>
             <h3 style="margin-bottom: 10px; color: #10b981; font-size: 15px;">تنزيل التجميعة المختارة (.ZIP)</h3>
             <input type="text" id="packName" style="width:100%; padding:8px; background:#0d0f14; border:1px solid rgba(255,255,255,0.2); border-radius:6px; color:#fff; margin-bottom:10px; font-size:12px;" value="My_LOST_Modpack">
+            
+            <div class="warnings-wrapper" id="warningsContainer"></div>
+
             <div class="cart-list" id="cartList"></div>
-            <button class="download-zip-btn" id="downloadZipBtn" onclick="generateZip()">📦 تنزيل الـ ZIP</button>
+            <button class="download-zip-btn" id="downloadZipBtn" onclick="generateZip()">📦 تحميل الملف المضغوط (.ZIP)</button>
         </div>
     </div>
 
     <script>
         const cubeSvg = `<svg viewBox="0 0 24 24"><path d="M21,16.5C21,16.88 20.79,17.21 20.47,17.38L12.57,21.82C12.41,21.94 12.21,22 12,22C11.79,22 11.59,21.94 11.43,21.82L3.53,17.38C3.21,17.21 3,16.88 3,16.5V7.5C3,7.12 3.21,6.79 3.53,6.62L11.43,2.18C11.59,2.06 11.79,2 12,2C12.21,2 12.41,2.06 12.57,2.18L20.47,6.62C20.79,6.79 21,7.12 21,7.5V16.5M12,4.15L6.04,7.5L12,10.85L17.96,7.5L12,4.15M5,9.58V15.34L11,18.7V12.94L5,9.58M19,9.58L13,12.94V18.7L19,15.34V9.58Z"/></svg>`;
 
-        // جميع الإصدارات المعتمدة من 1.7.10 إلى 1.21.11
         const allMcVersions = [
             "1.21.11", "1.21.10", "1.21.9", "1.21.8", "1.21.7", "1.21.6", "1.21.5", "1.21.4", "1.21.3", "1.21.2", "1.21.1", "1.21",
             "1.20.6", "1.20.5", "1.20.4", "1.20.3", "1.20.2", "1.20.1", "1.20",
@@ -159,7 +163,6 @@
         let modsData = [];
         let selectedMods = [];
 
-        // تعبئة القائمة المنسدلة بالإصدارات
         function initVersionDropdown() {
             const select = document.getElementById('mcVersion');
             select.innerHTML = '';
@@ -172,13 +175,12 @@
             });
         }
 
-        // جلب البيانات من mods.js بدون مشاكل الحظر بالموبايل
         function loadModsData() {
             if (typeof mods_data !== 'undefined' && Array.isArray(mods_data)) {
                 modsData = mods_data;
                 renderMods();
             } else {
-                document.getElementById('totalCountText').innerText = '⚠ خطأ: لم يتم العثور على ملف mods.js. تأكد من تشغيل generate_mods.py أولاً.';
+                document.getElementById('totalCountText').innerText = '⚠ خطأ: لم يتم العثور على ملف mods.js.';
             }
         }
 
@@ -226,14 +228,33 @@
             });
         }
 
+        // دالة التبديل والإضافة التلقائية للمودات المساعدة
         function toggleCart(modId) {
             const mod = modsData.find(m => m.id === modId);
             const index = selectedMods.findIndex(m => m.id === modId);
 
             if (index > -1) {
+                // إزالة المود
                 selectedMods.splice(index, 1);
             } else {
+                // إضافة المود
                 selectedMods.push(mod);
+
+                // --- ميزة الإضافة التلقائية للمود المساعد (Auto-Add Dependencies) ---
+                if (mod.dependencies && Array.isArray(mod.dependencies)) {
+                    mod.dependencies.forEach(depSlug => {
+                        // البحث عن المود المساعد بداخل قائمة المودات
+                        const depMod = modsData.find(m => 
+                            (m.slug && m.slug.toLowerCase() === depSlug.toLowerCase()) || 
+                            (m.name && m.name.toLowerCase() === depSlug.toLowerCase())
+                        );
+
+                        // إذا كان المود المساعد موجوداً وغير مضاف للسلة، نضيفه تلقائياً
+                        if (depMod && !selectedMods.some(m => m.id === depMod.id)) {
+                            selectedMods.push(depMod);
+                        }
+                    });
+                }
             }
 
             document.getElementById('cartCount').innerText = selectedMods.length;
@@ -243,13 +264,40 @@
 
         function renderCartList() {
             const cartList = document.getElementById('cartList');
+            const warningsContainer = document.getElementById('warningsContainer');
             cartList.innerHTML = '';
+            warningsContainer.innerHTML = '';
 
             if (selectedMods.length === 0) {
                 cartList.innerHTML = '<p style="color:#94a3b8; text-align:center; font-size:12px; padding:10px;">السلة فارغة.</p>';
                 return;
             }
 
+            // فحص تعارض البيئات
+            const loadersUsed = new Set(selectedMods.map(m => m.loader));
+            if (loadersUsed.size > 1) {
+                const alert = document.createElement('div');
+                alert.className = 'alert-box alert-danger';
+                alert.innerHTML = '⚠ <strong>تعارض بيئات:</strong> اخترت مودات من بيئات مختلفة معاً (Fabric و Forge)! اللعبة لن تعمل بهذه التجميعة.';
+                warningsContainer.appendChild(alert);
+            }
+
+            // فحص الكراش المباشر بين المودات المتعارضة
+            const selectedSlugs = selectedMods.map(m => m.slug ? m.slug.toLowerCase() : m.name.toLowerCase());
+            selectedMods.forEach(mod => {
+                if (mod.incompatible_with && Array.isArray(mod.incompatible_with)) {
+                    mod.incompatible_with.forEach(inc => {
+                        if (selectedSlugs.includes(inc.toLowerCase())) {
+                            const alert = document.createElement('div');
+                            alert.className = 'alert-box alert-danger';
+                            alert.innerHTML = `💥 <strong>تحذير كراش:</strong> المود <b>${mod.name}</b> يتعارض تماماً مع <b>${inc}</b> وسيتسبب بإغلاق اللعبة!`;
+                            warningsContainer.appendChild(alert);
+                        }
+                    });
+                }
+            });
+
+            // عرض قائمة المودات
             selectedMods.forEach(mod => {
                 const item = document.createElement('div');
                 item.className = 'cart-item';
@@ -302,7 +350,7 @@
                 a.download = `${packName}_${mcVer}.zip`;
                 a.click();
 
-                btn.innerText = '📦 تنزيل الـ ZIP';
+                btn.innerText = '📦 تحميل الملف المضغوط (.ZIP)';
                 btn.disabled = false;
             });
         }
@@ -311,7 +359,6 @@
         document.getElementById('openCartBtn').onclick = () => { renderCartList(); modal.style.display = 'flex'; };
         document.getElementById('closeModal').onclick = () => modal.style.display = 'none';
 
-        // التشغيل المباشر
         initVersionDropdown();
         loadModsData();
     </script>
